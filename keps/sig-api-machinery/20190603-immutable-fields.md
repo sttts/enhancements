@@ -122,15 +122,31 @@ A few possible semantics are described here:
 
 #### Equality
 
-Equality of two fields is very important:
-- Scalar fields are compared directly: fields and values must exactly match from old
-  object to new object.
-- Lists fields are compared using the same logic currently used for native
-  kubernetes types: Empty and null lists are equal. A missing list is NOT equal
-  to a null or empty list.
-- Same rule for list applies to maps and struct: An empty map and a null map are
-  considered equal. The keys in the map must be the same. Values are compared
-  using this same set of rules.
+Equality is strict, i.e. using `reflect.DeepEqual`.
+
+This has the following consequences for
+
+- **native resources:** these go through an unmarshal step from proto or JSON into the 
+native Golang struct. This normalizes undefined, null and empty lists, maps and 
+structs to `nil`. That struct is converted to JSON before the immutability check.
+The strict equality will therefore identify all three values. 
+
+  Compare https://goplay.space/#cCSo30Yfi2Z.
+
+- **custom resources:** these preserve the difference between undefined, null and empty 
+arrays and objects. Hence immutable fields cannot be changed without conflicting with immutability.
+
+  CRD validation will reject `nullable: true` for any immutable property and its children.
+  
+    **Background:** CRs make a distinction between undefined and null by design. Nullable
+  was introduced in 1.14 in order to cope with property types that have custom 
+  marshallers (e.g. `IntOrString`, `RawExtension`) and therefore marshal into `null`
+  because of Golang's `encoding/json.Marshal` semantics.
+  
+    The use-cases of `nullable` can be solved by using pointers to types with custom
+    marshallers. We propose that kubebuilder should:
+    1. warn or reject non-pointer, non-`omitempty` field types with custom marshalling
+    2. enforce `omitempty` for pointers, maps and slices.
 
 #### Proposal
 
