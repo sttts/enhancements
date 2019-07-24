@@ -2,14 +2,21 @@
 title: Immutable Fields
 authors:
   - "@apelisse"
+  - "@sttts"
 owning-sig: sig-api-machinery
 participating-sigs:
   - sig-api-machinery
 reviewers:
+  - "@deads2k"
+  - "@lavalamp"
+  - "@liggitt"
+  - "@apelisse"
 approvers:
+  - "@deads2k"
+  - "@lavalamp"
 editor: TBD
 creation-date: 2019-06-03
-last-updated: 2019-06-03
+last-updated: 2019-07-24
 status: provisional
 see-also:
   - "/keps/sig-api-machinery/0006-apply.md"
